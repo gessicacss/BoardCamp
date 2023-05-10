@@ -1,11 +1,12 @@
 {
   "name": "projeto16-boardcamp",
-  "type":"module",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "./src/app.js",
   "scripts": {
     "start": "node ./src/app.js",
+    "dev": "npx nodemon ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +16,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "joi": "^17.9.2",
     "pg": "^8.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
   }
 }
