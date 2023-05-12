@@ -83,17 +83,18 @@ export async function finalizeRental(req, res) {
         findRental.rows[0].gameId,
       ]);
 
-      const daysOfDelay = Math.abs(dayjs( Date.now() ).diff(
+      const daysDiff = dayjs( Date.now() ).diff(
         findRental.rows[0].rentDate,
         "day"
-      ) - findRental.rows[0].daysRented);
+      )
+      const daysOfDelay = Math.abs(daysDiff - findRental.rows[0].daysRented);
 
       let delayFee = 0;
 
-      if (daysOfDelay > findRental.rows[0].daysRented ) {
+      if ( daysDiff > findRental.rows[0].daysRented ) {
       delayFee = daysOfDelay * findGame.rows[0].pricePerDay;
       }
-  
+
     await db.query(
       `UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3;`,
       [formatDate(), delayFee, id]
