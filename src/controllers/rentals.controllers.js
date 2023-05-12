@@ -82,10 +82,12 @@ export async function finalizeRental(req, res) {
     const findGame = await db.query(`SELECT * FROM games WHERE id=$1`, [
       findRental.rows[0].gameId,
     ]);
-    const daysOfDelay = dayjs(Date.now()).diff(
+
+    const daysOfDelay = Math.abs(dayjs(Date.now()).diff(
       findRental.rows[0].rentDate,
       "day"
-    );
+    ));
+
     const delayFee = daysOfDelay * findGame.rows[0].pricePerDay;
 
     await db.query(
