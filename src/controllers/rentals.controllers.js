@@ -79,20 +79,22 @@ export async function finalizeRental(req, res) {
     if (findRental.rows[0].returnDate !== null)
       return res.status(400).send(`This rental has already been finalized!`);
 
-    const findGame = await db.query(`SELECT * FROM games WHERE id=$1`, [
-      findRental.rows[0].gameId,
-    ]);
+      const findGame = await db.query(`SELECT * FROM games WHERE id=$1`, [
+        findRental.rows[0].gameId,
+      ]);
+  
 
-    const daysOfDelay = Math.abs(dayjs(Date.now()).diff(
-      findRental.rows[0].rentDate,
-      "day"
-    ));
-
-    const delayFee = daysOfDelay * findGame.rows[0].pricePerDay;
+      const day = '2023-05-16';
+      const daysOfDelay = Math.abs(dayjs(day).diff(
+        findRental.rows[0].rentDate,
+        "day"
+      ) - findRental.rows[0].daysRented);
+  
+      const delayFee = daysOfDelay * findGame.rows[0].pricePerDay;
 
     await db.query(
       `UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3;`,
-      [formatDate(), delayFee, id]
+      [day, delayFee, id]
     );
     res.sendStatus(200);
   } catch (err) {
