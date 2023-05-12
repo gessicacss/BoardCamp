@@ -84,8 +84,7 @@ export async function finalizeRental(req, res) {
       ]);
   
 
-      const day = '2023-05-16';
-      const daysOfDelay = Math.abs(dayjs(day).diff(
+      const daysOfDelay = Math.abs(dayjs( Date.now() ).diff(
         findRental.rows[0].rentDate,
         "day"
       ) - findRental.rows[0].daysRented);
