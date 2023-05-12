@@ -76,7 +76,7 @@ export async function finalizeRental(req, res) {
     if (!findRental.rowCount)
       return res.status(404).send(`There's no rentals with this ID!`);
 
-    if (findRental.returnDate !== null)
+    if (findRental.rows[0].returnDate !== null)
       return res.status(400).send(`This rental has already been finalized!`);
 
     const findGame = await db.query(`SELECT * FROM games WHERE id=$1`, [
