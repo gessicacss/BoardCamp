@@ -37,8 +37,8 @@ export async function getRentals(req, res) {
   try {
     const rentals = await db.query(
       `SELECT rentals.*, customers.name as "customerName", games.name as "gameName"
-      FROM rentals JOIN customers ON rentals."customerId" = customers.id 
-      JOIN games ON rentals."gameId" = games.id;`
+      FROM rentals JOIN customers ON customers.id = rentals."customerId" 
+      JOIN games ON games.id = rentals."gameId";`
     );
 
     const listRentals = rentals.rows.map((row) => {
