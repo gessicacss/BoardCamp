@@ -66,19 +66,30 @@ export async function getRentals(req, res) {
     }
     
     if (req.query.order && req.query.desc === 'true'){
-      mainQuery += `ORDER BY ${req.query.order} DESC;`;
+      mainQuery += `ORDER BY "${req.query.order}" DESC;`;
     } else if (req.query.order){
-      mainQuery += `ORDER BY ${req.query.order};`;
+      mainQuery += `ORDER BY "${req.query.order}";`;
     }
 
-    if (req.query.status === 'closed'){
+    if (req.query.startDate && req.query.status === 'open'){
+      mainQuery += `WHERE "returnDate" IS NULL AND "rentDate" >= $1`;
+      values.push(req.query.startDate)
+    } else if (req.query.startDate && req.query.status === 'closed'){
+      mainQuery += `WHERE "returnDate" IS NOT NULL AND "rentDate" >= $1`;
+      values.push(req.query.startDate)
+    } else if (req.query.startDate){
+      mainQuery += `WHERE "rentDate" >= $1`;
+      values.push(req.query.startDate)
+    } else if (req.query.startDate && req.query.status === 'open'){
+      mainQuery += `WHERE "returnDate" IS NULL AND "rentDate" >= $1`;
+      values.push(req.query.startDate)
+    } else if (req.query.startDate && req.query.status === 'closed'){
+      mainQuery += `WHERE "returnDate" IS NOT NULL AND "rentDate" >= $1`;
+      values.push(req.query.startDate)
+    } else     if (req.query.status === 'closed'){
       mainQuery += `WHERE "returnDate" IS NOT NULL`;
     } else if (req.query.status === 'open'){
       mainQuery += `WHERE "returnDate" IS NULL`;
-    }
-    if (req.query.startDate){
-      mainQuery += `WHERE "rentDate" >= $1`;
-      values.push(req.query.startDate)
     }
 
     const rentals = await db.query(mainQuery, values);
