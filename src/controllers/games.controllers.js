@@ -42,9 +42,9 @@ export async function getGames(req, res) {
     }
 
     if (req.query.order && req.query.desc === 'true'){
-      mainQuery += `ORDER BY ${req.query.order} DESC;`;
+      mainQuery += `ORDER BY "${req.query.order}" DESC;`;
     } else if (req.query.order){
-      mainQuery += `ORDER BY ${req.query.order};`;
+      mainQuery += `ORDER BY "${req.query.order}";`;
     }
 
     console.log(mainQuery);
