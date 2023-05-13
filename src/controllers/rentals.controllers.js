@@ -39,11 +39,20 @@ export async function createRental(req, res) {
 
 export async function getRentals(req, res) {
   try {
-    const rentals = await db.query(
-      `SELECT rentals.*, customers.name as "customerName", games.name as "gameName"
-      FROM rentals JOIN customers ON customers.id = rentals."customerId" 
-      JOIN games ON games.id = rentals."gameId";`
-    );
+    let mainQuery = `SELECT rentals.*, customers.name as "customerName", games.name as "gameName"
+    FROM rentals JOIN customers ON customers.id = rentals."customerId" 
+    JOIN games ON games.id = rentals."gameId"`;
+
+    let values = []
+
+    if (req.query.customerId) {
+      mainQuery += `WHERE rentals."customerId" = $1`;
+      values.push(parseInt(req.query.customerId));
+    } else if (req.query.gameId) {
+      mainQuery += `WHERE rentals."gameId" = $1`;
+      values.push(parseInt(req.query.gameId));
+    }
+    const rentals = await db.query(mainQuery, values);
 
     const listRentals = rentals.rows.map((row) => {
       const { customerName, gameName, ...rowInfo } = row;
@@ -79,21 +88,18 @@ export async function finalizeRental(req, res) {
     if (findRental.rows[0].returnDate !== null)
       return res.status(400).send(`This rental has already been finalized!`);
 
-      const findGame = await db.query(`SELECT * FROM games WHERE id=$1`, [
-        findRental.rows[0].gameId,
-      ]);
+    const findGame = await db.query(`SELECT * FROM games WHERE id=$1`, [
+      findRental.rows[0].gameId,
+    ]);
 
-      const daysDiff = dayjs( Date.now() ).diff(
-        findRental.rows[0].rentDate,
-        "day"
-      )
-      const daysOfDelay = Math.abs(daysDiff - findRental.rows[0].daysRented);
+    const daysDiff = dayjs(Date.now()).diff(findRental.rows[0].rentDate, "day");
+    const daysOfDelay = Math.abs(daysDiff - findRental.rows[0].daysRented);
 
-      let delayFee = 0;
+    let delayFee = 0;
 
-      if ( daysDiff > findRental.rows[0].daysRented ) {
+    if (daysDiff > findRental.rows[0].daysRented) {
       delayFee = daysOfDelay * findGame.rows[0].pricePerDay;
-      }
+    }
 
     await db.query(
       `UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3;`,

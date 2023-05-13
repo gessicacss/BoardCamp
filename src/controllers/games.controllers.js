@@ -21,7 +21,14 @@ export async function createGames(req, res) {
 
 export async function getGames(req, res) {
   try {
-    const games = await db.query(`SELECT * FROM games;`);
+    let mainQuery = `SELECT * FROM GAMES `;
+    const value = [];
+
+    if (req.query.name){
+      mainQuery += `WHERE LOWER(games.name) LIKE LOWER($1);`;
+      value.push(`${req.query.name}%`);
+    }
+    const games = await db.query(mainQuery, value);
     res.send(games.rows);
   } catch (err) {
     res.status(500).send(err.message);
