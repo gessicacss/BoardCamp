@@ -41,6 +41,14 @@ export async function getGames(req, res) {
       value.push(parseInt(req.query.limit));
     }
 
+    if (req.query.order && req.query.desc === 'true'){
+      mainQuery += `ORDER BY ${req.query.order} DESC;`;
+    } else if (req.query.order){
+      mainQuery += `ORDER BY ${req.query.order};`;
+    }
+
+    console.log(mainQuery);
+
     const games = await db.query(mainQuery, value);
     res.send(games.rows);
   } catch (err) {

@@ -64,7 +64,13 @@ export async function getRentals(req, res) {
       mainQuery += `LIMIT $1;`;
       values.push(parseInt(req.query.limit));
     }
-
+    
+    if (req.query.order && req.query.desc === 'true'){
+      mainQuery += `ORDER BY ${req.query.order} DESC;`;
+    } else if (req.query.order){
+      mainQuery += `ORDER BY ${req.query.order};`;
+    }
+    
     const rentals = await db.query(mainQuery, values);
 
     const listRentals = rentals.rows.map((row) => {

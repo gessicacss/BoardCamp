@@ -29,7 +29,7 @@ export async function getCustomers(req, res) {
       mainQuery += `WHERE customers.cpf LIKE $1;`;
       value.push(`${req.query.cpf}%`);
     }
-    
+
     if (req.query.limit && req.query.offset){
       mainQuery += `LIMIT $1 OFFSET $2`;
       value.push(parseInt(req.query.limit));
@@ -42,6 +42,12 @@ export async function getCustomers(req, res) {
       value.push(parseInt(req.query.limit));
     }
 
+    if (req.query.order && req.query.desc === 'true'){
+      mainQuery += `ORDER BY ${req.query.order} DESC;`;
+    } else if (req.query.order){
+      mainQuery += `ORDER BY ${req.query.order};`;
+    }
+    
     const customers = await db.query(mainQuery, value);
     res.send(customers.rows);
   } catch (err) {
