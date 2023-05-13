@@ -70,7 +70,17 @@ export async function getRentals(req, res) {
     } else if (req.query.order){
       mainQuery += `ORDER BY ${req.query.order};`;
     }
-    
+
+    if (req.query.status === 'closed'){
+      mainQuery += `WHERE "returnDate" IS NOT NULL`;
+    } else if (req.query.status === 'open'){
+      mainQuery += `WHERE "returnDate" IS NULL`;
+    }
+    if (req.query.startDate){
+      mainQuery += `WHERE "rentDate" >= $1`;
+      values.push(req.query.startDate)
+    }
+
     const rentals = await db.query(mainQuery, values);
 
     const listRentals = rentals.rows.map((row) => {
