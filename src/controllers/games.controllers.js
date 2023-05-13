@@ -21,13 +21,26 @@ export async function createGames(req, res) {
 
 export async function getGames(req, res) {
   try {
-    let mainQuery = `SELECT * FROM GAMES `;
+    let mainQuery = `SELECT * FROM games `;
     const value = [];
 
     if (req.query.name){
       mainQuery += `WHERE LOWER(games.name) LIKE LOWER($1);`;
       value.push(`${req.query.name}%`);
     }
+
+    if (req.query.limit && req.query.offset){
+      mainQuery += `LIMIT $1 OFFSET $2`;
+      value.push(parseInt(req.query.limit));
+      value.push(parseInt(req.query.offset));
+    } else if (req.query.offset){
+      mainQuery += `OFFSET $1;`;
+      value.push(parseInt(req.query.offset));
+    } else if (req.query.limit){
+      mainQuery += `LIMIT $1;`;
+      value.push(parseInt(req.query.limit));
+    }
+
     const games = await db.query(mainQuery, value);
     res.send(games.rows);
   } catch (err) {

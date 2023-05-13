@@ -52,6 +52,19 @@ export async function getRentals(req, res) {
       mainQuery += `WHERE rentals."gameId" = $1`;
       values.push(parseInt(req.query.gameId));
     }
+
+    if (req.query.limit && req.query.offset){
+      mainQuery += `LIMIT $1 OFFSET $2`;
+      values.push(parseInt(req.query.limit));
+      values.push(parseInt(req.query.offset));
+    } else if (req.query.offset){
+      mainQuery += `OFFSET $1;`;
+      values.push(parseInt(req.query.offset));
+    } else if (req.query.limit){
+      mainQuery += `LIMIT $1;`;
+      values.push(parseInt(req.query.limit));
+    }
+
     const rentals = await db.query(mainQuery, values);
 
     const listRentals = rentals.rows.map((row) => {

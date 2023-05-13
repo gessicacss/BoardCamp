@@ -29,6 +29,18 @@ export async function getCustomers(req, res) {
       mainQuery += `WHERE customers.cpf LIKE $1;`;
       value.push(`${req.query.cpf}%`);
     }
+    
+    if (req.query.limit && req.query.offset){
+      mainQuery += `LIMIT $1 OFFSET $2`;
+      value.push(parseInt(req.query.limit));
+      value.push(parseInt(req.query.offset));
+    } else if (req.query.offset){
+      mainQuery += `OFFSET $1;`;
+      value.push(parseInt(req.query.offset));
+    } else if (req.query.limit){
+      mainQuery += `LIMIT $1;`;
+      value.push(parseInt(req.query.limit));
+    }
 
     const customers = await db.query(mainQuery, value);
     res.send(customers.rows);
